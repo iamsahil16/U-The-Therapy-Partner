@@ -55,13 +55,24 @@ export async function POST(
   req: NextRequest
 ): Promise<NextResponse<ChatResponseBody>> {
   try {
+    const apiKey = process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        {
+          reply:
+            "CalmChat needs a Google API key. Add GOOGLE_API_KEY to .env.local and restart the app.",
+        },
+        { status: 500 },
+      );
+    }
+
     const body: ChatRequestBody = await req.json();
     const { messages } = body;
 
     const model = new ChatGoogleGenerativeAI({
       model: "gemini-2.5-flash",
       temperature: 0.7,
-      apiKey: process.env.GOOGLE_API_KEY,
+      apiKey,
     });
 
     const formattedMessages: BaseMessage[] = [
